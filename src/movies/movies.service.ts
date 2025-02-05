@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { FilterMovieDto } from './dto/filter-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -66,6 +67,28 @@ export class MoviesService {
             message: 'movie was created successfully.',
             data: newMovie
         };
+    }
+
+    async update(id: number, updateMovieDto: UpdateMovieDto) {
+        const movie = await this.databaseService.movie.findUnique({ 
+            where: {
+                id
+            }
+        });
+        if (!movie) throw new NotFoundException(`movie with id ${id} not found.`);
+
+        const updatedMovie = await this.databaseService.movie.update({
+            where: {
+                id
+            },
+            data: updateMovieDto
+        });
+
+        return {
+            status: 'success',
+            message: 'movie updated successfully.',
+            data: updatedMovie
+        }
     }
 
 }
