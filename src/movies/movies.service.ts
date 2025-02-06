@@ -45,7 +45,7 @@ export class MoviesService {
         const total = await this.databaseService.movie.count({ where });
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
-        const hasPrevious = page > 1;
+        const hasPrev = page > 1;
 
         return {
             status: 'success',
@@ -53,7 +53,7 @@ export class MoviesService {
             data: movies,
             total,
             hasNext,
-            hasPrevious,
+            hasPrev,
         };
     }
 
