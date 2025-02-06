@@ -109,7 +109,21 @@ export class ReviewsService {
   }
 
   async update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+    const reviewExists = await this.databaseService.review.findUnique({ where:  { id } });
+    if (!reviewExists) throw new NotFoundException(`review with id ${id} not found.`);
+
+    const updatedReview = await this.databaseService.review.update({
+      where: {
+        id
+      },
+      data: updateReviewDto
+    });
+
+    return {
+      status: 'succues',
+      message: `review with id ${id} updated`,
+      data: updatedReview
+    }
   }
 
   async remove(id: number) {

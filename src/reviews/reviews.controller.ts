@@ -29,12 +29,12 @@ export class ReviewsController {
   }
 
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewsService.update(+id, updateReviewDto);
+  @Patch('reviews/:id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto) {
+    return this.reviewsService.update(id, updateReviewDto);
   }
 
-  @Delete(':id')
+  @Delete('reviews/:id')
   async remove(@Param('id') id: string) {
     return this.reviewsService.remove(+id);
   }
