@@ -127,6 +127,13 @@ export class ReviewsService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} review`;
+    const reviewExists = await this.databaseService.review.findUnique({ where:  { id } });
+    if (!reviewExists) throw new NotFoundException(`review with id ${id} not found.`);
+
+    await this.databaseService.review.delete({ where: { id } });
+    return {
+      status: 'succues',
+      message: `review with id ${id} deleted`,
+    }
   }
 }

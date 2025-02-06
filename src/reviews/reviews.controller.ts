@@ -35,7 +35,7 @@ export class ReviewsController {
   }
 
   @Delete('reviews/:id')
-  async remove(@Param('id') id: string) {
-    return this.reviewsService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.reviewsService.remove(id);
   }
 }
