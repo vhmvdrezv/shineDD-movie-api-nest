@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { FilterMovieDto } from './dto/filter-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+
 
 @Controller('movies')
+@UseGuards(ThrottlerGuard) 
 export class MoviesController {
     constructor(private readonly movieService: MoviesService) { };
 
