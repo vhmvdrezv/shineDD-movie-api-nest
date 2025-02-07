@@ -11,11 +11,6 @@ export class ReviewsService {
   constructor(private readonly databaseService: DatabaseService) { };
 
   async create(movieId: number, createReviewDto: CreateReviewDto) {
-
-    // it should be replace by adding exception filters
-    const movieExists = await this.databaseService.movie.findUnique({ where: { id: movieId } });
-    if (!movieExists) throw new NotFoundException(`movie with id ${movieId} not found`);
-
     const newReview = await this.databaseService.review.create({
       data: {
         movieId,
