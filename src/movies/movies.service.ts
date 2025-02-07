@@ -69,14 +69,7 @@ export class MoviesService {
         };
     }
 
-    async update(id: number, updateMovieDto: UpdateMovieDto) {
-        const movie = await this.databaseService.movie.findUnique({ 
-            where: {
-                id
-            }
-        });
-        if (!movie) throw new NotFoundException(`movie with id ${id} not found.`);
-
+    async update(id: number, updateMovieDto: UpdateMovieDto) {        
         const updatedMovie = await this.databaseService.movie.update({
             where: {
                 id
