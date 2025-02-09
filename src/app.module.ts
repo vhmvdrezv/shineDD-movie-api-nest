@@ -5,6 +5,7 @@ import { MoviesModule } from './movies/movies.module';
 import { DatabaseModule } from './database/database.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { MyLoggerModule } from './my-logger/my-logger.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
       name: 'long',
       ttl: 60000,
       limit: 66
-    }])
+    }]),
+    MyLoggerModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, HttpException, HttpStatus } from "@nestjs/common"
 import { BaseExceptionFilter } from "@nestjs/core";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { Request, Response } from "express";
+import { MyLoggerService } from "./my-logger/my-logger.service";
 
 type MyResponseObj = {
     statusCode: number,
@@ -12,7 +13,10 @@ type MyResponseObj = {
 
 @Catch()
 export class AllExceptionFilter extends BaseExceptionFilter {
-    catch(exception: any, host: ArgumentsHost): void {
+
+    private myLogger = new MyLoggerService()
+
+    async catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
@@ -38,6 +42,13 @@ export class AllExceptionFilter extends BaseExceptionFilter {
         } else {
             myResponseObj.response = exception.message || "An unexpected error occurred.";
         }
+
+        await this.myLogger.error({
+            message: exception.message,
+            stack: exception.stack,
+            path: request.url,
+            statusCode: myResponseObj.statusCode,
+        }, 'AllExceptionFilter');
 
         response
             .status(myResponseObj.statusCode)
