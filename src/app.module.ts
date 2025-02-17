@@ -7,6 +7,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MyLoggerModule } from './my-logger/my-logger.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -22,8 +24,13 @@ import { UsersModule } from './users/users.module';
       ttl: 60000,
       limit: 66
     }]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env'
+    }),
     MyLoggerModule,
-    UsersModule
+    UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
