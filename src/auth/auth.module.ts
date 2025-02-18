@@ -5,6 +5,8 @@ import { DatabaseModule } from 'src/database/database.module';
 import { LocalStrategy } from './strategies/passport-local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { UsersModule } from 'src/users/users.module';
+import { JwtStrategy } from './strategies/passport-jwt.strategy';
 
 @Module({
   imports: [
@@ -16,9 +18,10 @@ import { ConfigService } from '@nestjs/config';
         global: true,
         signOptions: { expiresIn: '1h' }
       })
-    })
+    }),
+    UsersModule
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy]
+  providers: [AuthService, LocalStrategy, JwtStrategy]
 })
 export class AuthModule {}

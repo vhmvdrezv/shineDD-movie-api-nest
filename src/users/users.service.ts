@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -60,6 +60,28 @@ export class UsersService {
             data: users,
             hasNext, 
             hasPrev
+        }
+    }
+
+    async findOne(id: number) {
+        const user = await this.databaseService.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                role: true,
+                age: true,
+                status: true,
+            }
+        });
+
+        if (!user) throw new NotFoundException(`user with id ${id} not found`);
+
+        return {
+            status: 'success', 
+            message: 'user: ',
+            data: user
         }
     }
 
