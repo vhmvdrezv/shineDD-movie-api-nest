@@ -23,7 +23,8 @@ export class UsersService {
         const newUser = await this.databaseService.user.create({
             data: {
                 ...user,
-                password: hashedPassword
+                password: hashedPassword,
+                verified: true
             }
         })
 

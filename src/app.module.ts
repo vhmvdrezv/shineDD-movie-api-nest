@@ -9,6 +9,7 @@ import { MyLoggerModule } from './my-logger/my-logger.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -28,9 +29,18 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env'
     }),
+    // MailerModule.forRoot({
+    //   transport: {
+    //     host: 'smtp.gmail.com',
+    //     auth: {
+    //       user: 'ahmdrzashn@gmail.com',
+    //       pass: 'Shn13811shn13811'
+    //     }
+    //   }
+    // }),
     MyLoggerModule,
     UsersModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

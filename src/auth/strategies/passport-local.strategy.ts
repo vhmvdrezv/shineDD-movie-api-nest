@@ -14,6 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         const user = await this.authService.validate(username, password);
         if (!user) throw new UnauthorizedException('username or password is wrong');
         if (user.status !== Status.active) throw new ForbiddenException('user account is not active');
+        if (user.verified !== true) throw new ForbiddenException('user account is not verified');
         return user;
     }
 }
