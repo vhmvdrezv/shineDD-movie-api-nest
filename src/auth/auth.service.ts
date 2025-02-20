@@ -5,6 +5,9 @@ import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { EmailService } from 'src/email/email.service';
+import { SendEmailDto } from 'src/email/dto/send-email.dto';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
@@ -12,6 +15,8 @@ export class AuthService {
     constructor(
         private readonly databaseService: DatabaseService,
         private readonly jwtService: JwtService,
+        private readonly emailService: EmailService,
+        private readonly configService: ConfigService
     ) { };
 
     async validate(username: string, password: string) {
@@ -57,15 +62,24 @@ export class AuthService {
             }
         });
 
-        // send verification email
-        // await this.mailerService.sendMail({
-        //     to: 'ahmdrzashn@gmail.com',
-        //     from: 'mychatgptv1@gmail.com',
-        //     subject: 'Testing Nest js',
-        //     text: 'welcome',
-        //     html: '<b>welcome</b>'
-        // })
-        console.log(verificationToken);
+        // sending email verfication
+    
+        const verificationLink = `${this.configService.get<string>('BASE_URL')}/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+
+        const sendEmailDto: SendEmailDto = {
+            recipient: newUser.email,
+            subject: 'Email Verification',
+            html: `
+                <h1>Email Verification</h1>
+                <p>Click the link below to verify your email:</p>
+                <a href="${verificationLink}" target="_blank">Verify Email</a>
+                <p>If you didn't request this, please ignore this email.</p>
+            `,
+            text: `Please click the following link to verify your account: ${verificationLink}`
+        };
+
+        await this.emailService.sendEmail(sendEmailDto);
 
         return {
             status: 'success',
