@@ -29,6 +29,8 @@ model Review {
   id            Int         @id @default(autoincrement())
   movieId       Int
   movie         Movie       @relation(fields: [movieId], references: [id])
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
   content       String
   status        ReviewStatus
   createdAt     DateTime    @default(now())
@@ -44,6 +46,7 @@ model User {
   age           Int?   
   status        Status       @default(active)
   verified      Boolean      @default(false)
+  reviews       Review[]      
   verificationToken String?      
 }
 

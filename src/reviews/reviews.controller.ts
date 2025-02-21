@@ -1,16 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, UseGuards, Request } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { FilterReviewsDto } from './dto/filter-reviews.dto';
+import { JwtAuthGuard } from 'src/auth/gaurds/passport-jwt.guard';
 
 @Controller()
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('movies/:movieId/reviews')
-  async create(@Param('movieId', ParseIntPipe) movieId: number, @Body() createReviewDto: CreateReviewDto) {
-    return this.reviewsService.create(movieId, createReviewDto);
+  async create(@Request() req, @Param('movieId', ParseIntPipe) movieId: number, @Body() createReviewDto: CreateReviewDto) {
+    return this.reviewsService.create(req.user.id, movieId, createReviewDto);
   }
 
   @Get('movies/:movieId/reviews')

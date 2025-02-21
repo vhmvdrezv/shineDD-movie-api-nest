@@ -10,9 +10,10 @@ export class ReviewsService {
 
   constructor(private readonly databaseService: DatabaseService) { };
 
-  async create(movieId: number, createReviewDto: CreateReviewDto) {
+  async create(userId: number, movieId: number, createReviewDto: CreateReviewDto) {
     const newReview = await this.databaseService.review.create({
       data: {
+        userId,
         movieId,
         content: createReviewDto.content,
         status: 'PENDING'
