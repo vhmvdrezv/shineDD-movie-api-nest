@@ -16,8 +16,6 @@ export class MoviesController {
     constructor(private readonly movieService: MoviesService) { };
   
     @Get()
-    @Roles(Role.USER, Role.ADMIN)
-    @UseGuards(JwtAuthGuard, RolesGuard)
     async findAll(@Request() req, @Query() filterMovieDto: FilterMovieDto) {
         return this.movieService.findAll(filterMovieDto);
     }
@@ -28,11 +26,15 @@ export class MoviesController {
     }
  
     @Post()
+    @Roles(Role.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     async create(@Body() createMovieDto: CreateMovieDto) {
         return this.movieService.create(createMovieDto);
     }
 
     @Patch(':id')
+    @Roles(Role.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     async update(@Param('id', ParseIntPipe) id: number, @Body() updateMovieDto: UpdateMovieDto) {
         return this.movieService.update(id, updateMovieDto)
     }
