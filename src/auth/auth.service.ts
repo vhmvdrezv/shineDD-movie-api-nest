@@ -9,6 +9,7 @@ import { EmailService } from 'src/email/email.service';
 import { SendEmailDto } from 'src/email/dto/send-email.dto';
 import { ConfigService } from '@nestjs/config';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
+import { ConfirmForgetPassword } from './dto/confirm-forget-password.dto';
 
 
 @Injectable()
@@ -143,5 +144,34 @@ export class AuthService {
             status: 'success',
             message: 'email sent successfully'
         }
+    }
+
+    async confirmForgetPassword(confirmForgetPassword: ConfirmForgetPassword) {
+        const { token, newPassword } = confirmForgetPassword;
+
+        const forgetPassword = await this.databaseService.forgetPassword.findUnique({ where: { token } });
+
+        if (!forgetPassword || forgetPassword.expiresAt < new Date(Date.now())) {
+            throw new HttpException('token is wrong or time expired', 400);
+        }
+
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+        await this.databaseService.user.update({
+            where: {
+                email: forgetPassword.email
+            },
+            data: {
+                password: newHashedPassword
+            }
+        });
+
+        await this.databaseService.forgetPassword.delete({
+            where: { token }
+        });
+
+        return {
+            status: 'success',
+            message: 'password was updated successfully'
+        };
     }
 }

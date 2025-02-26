@@ -55,7 +55,7 @@ model ForgetPassword {
   email         String  @id
   user          User    @relation(fields: [email], references: [email])
   expiresAt     DateTime
-  token         String
+  token         String  @unique
 }
 
 enum Genre {
