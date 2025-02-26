@@ -47,7 +47,15 @@ model User {
   status        Status       @default(active)
   verified      Boolean      @default(false)
   reviews       Review[]      
-  verificationToken String?      
+  verificationToken String?    
+  forgetPassword  ForgetPassword?
+}
+
+model ForgetPassword {
+  email         String  @id
+  user          User    @relation(fields: [email], references: [email])
+  expiresAt     DateTime
+  token         String
 }
 
 enum Genre {

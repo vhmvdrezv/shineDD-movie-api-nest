@@ -1,4 +1,4 @@
-import { Body, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Body, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from 'src/email/email.service';
 import { SendEmailDto } from 'src/email/dto/send-email.dto';
 import { ConfigService } from '@nestjs/config';
+import { ForgetPasswordDto } from './dto/forget-password.dto';
 
 
 @Injectable()
@@ -99,6 +100,48 @@ export class AuthService {
         return {
             status: 'success',
             message: 'user account verfied successfully'
+        }
+    }
+
+    async forgetPassword(forgetPasswordDto: ForgetPasswordDto) {
+        const { email } = forgetPasswordDto;
+
+        const emailExists = await this.databaseService.user.findUnique({ where: { email } })
+        if (!emailExists) throw new NotFoundException('email doesn`t exists');
+
+        const token = uuidv4();
+        await this.databaseService.forgetPassword.upsert({
+            where: { email },
+            update: {
+                token,
+                expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+            },
+            create: {
+                email,
+                token,
+                expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+            }
+        });
+
+        const verificationLink = `${this.configService.get<string>('BASE_URL')}/confirm-forget-email?token=${token}`;
+
+        const sendEmailDto: SendEmailDto = {
+            recipient: email,
+            subject: 'ForgetPassword',
+            html: `
+                <h1>Forget Password</h1>
+                <p>Click the link below to Reset your Password:</p>
+                <a href="${verificationLink}" target="_blank">Forget Password</a>
+                <p>If you didn't request this, please ignore this email.</p>
+            `,
+            text: `Please click the following link to Reset your Password: ${verificationLink}`
+        };
+
+        await this.emailService.sendEmail(sendEmailDto);
+
+        return {
+            status: 'success',
+            message: 'email sent successfully'
         }
     }
 }

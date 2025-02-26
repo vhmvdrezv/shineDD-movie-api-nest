@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtAuthGuard } from './gaurds/passport-jwt.guard';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { ForgetPasswordDto } from './dto/forget-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -32,5 +33,10 @@ export class AuthController {
     @Get('verify-email')
     async verifyEmail(@Query('token') token: string, @Query('email') email: string) {
         return this.authService.verifyEmail(token, email);
+    }
+
+    @Post('forget-password')
+    async forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
+        return this.authService.forgetPassword(forgetPasswordDto)
     }
 }
