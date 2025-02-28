@@ -49,9 +49,17 @@ model User {
   reviews       Review[]      
   verificationToken String?    
   forgetPassword  ForgetPassword?
+  resetPassword   ResetPassword?
 }
 
 model ForgetPassword {
+  email         String  @id
+  user          User    @relation(fields: [email], references: [email])
+  expiresAt     DateTime
+  token         String  @unique
+}
+
+model ResetPassword {
   email         String  @id
   user          User    @relation(fields: [email], references: [email])
   expiresAt     DateTime

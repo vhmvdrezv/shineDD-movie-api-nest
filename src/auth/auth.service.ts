@@ -10,6 +10,7 @@ import { SendEmailDto } from 'src/email/dto/send-email.dto';
 import { ConfigService } from '@nestjs/config';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ConfirmForgetPassword } from './dto/confirm-forget-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto copy';
 
 
 @Injectable()
@@ -172,6 +173,57 @@ export class AuthService {
         return {
             status: 'success',
             message: 'password was updated successfully'
+        };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const { email } = resetPasswordDto;
+
+        // Check if the email exists in the database
+        const emailExists = await this.databaseService.resetPassword.findUnique({ where: { email  } });
+        if (!emailExists) throw new NotFoundException('Email doesnt exists');
+
+        // Generate a unique token for password reset
+        const token = uuidv4();
+
+        // Store or update the reset token and expiration time in the database
+        await this.databaseService.resetPassword.upsert({
+            where: { 
+                email
+            },
+            create: {
+                email,
+                token,
+                expiresAt: new Date(Date.now() + 60 * 60 * 3600)
+            },
+            update: {
+                token, 
+                expiresAt: new Date(Date.now() + 60 * 60 * 3600)
+            }
+        });
+
+        // Construct the verification link containing the reset token
+        const verificationLink = `${this.configService.get<string>('BASE_URL')}/confirm-forget-email?token=${token}`;
+
+        // Prepare the email content
+        const sendEmailDto: SendEmailDto = {
+            recipient: email,
+            subject: 'ResetPassword',
+            html: `
+                <h1>Reset Password</h1>
+                <p>Click the link below to Reset your Password:</p>
+                <a href="${verificationLink}" target="_blank">Forget Password</a>
+                <p>If you didn't request this, please ignore this email.</p>
+            `,
+            text: `Please click the following link to Reset your Password: ${verificationLink}`
+        };
+
+        // Send the email using an email service
+        await this.emailService.sendEmail(sendEmailDto);
+
+        return {
+            status: 'success',
+            message: 'reset-email sent to user.'
         };
     }
 }
