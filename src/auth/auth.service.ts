@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ConfirmForgetPassword } from './dto/confirm-forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto copy';
+import { ConfirmResetPasswordDto } from './dto/confirm-reset-password.dto';
 
 
 @Injectable()
@@ -152,7 +153,7 @@ export class AuthService {
 
         const forgetPassword = await this.databaseService.forgetPassword.findUnique({ where: { token } });
 
-        if (!forgetPassword || forgetPassword.expiresAt < new Date(Date.now())) {
+        if (!forgetPassword || forgetPassword.expiresAt.getTime() < Date.now()) {
             throw new HttpException('token is wrong or time expired', 400);
         }
 
@@ -224,6 +225,40 @@ export class AuthService {
         return {
             status: 'success',
             message: 'reset-email sent to user.'
+        };
+    }
+
+    async confirmResetPassword(confirmResetPasswordDto: ConfirmResetPasswordDto) {
+        const { newPassword, token } = confirmResetPasswordDto;
+
+        const resetPassword = await this.databaseService.resetPassword.findUnique({
+            where: {
+                token
+            }
+        });
+
+        // Ensure token is still valid
+        if (!resetPassword || resetPassword.expiresAt.getTime() < Date.now()) {
+            throw new HttpException('token is wrong or timedout', 400);
+        }
+
+        // Hash new password
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Use transaction to prevent race conditions
+        await this.databaseService.$transaction([
+            this.databaseService.user.update({
+                where: { email: resetPassword.email },
+                data: { password: newHashedPassword },
+            }),
+            this.databaseService.resetPassword.delete({
+                where: { email: resetPassword.email },
+            }),
+        ]);
+
+        return {
+            status: 'success',
+            message: 'password was reset successfully'
         };
     }
 }

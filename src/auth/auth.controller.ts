@@ -7,6 +7,7 @@ import { SignupUserDto } from './dto/signup-user.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ConfirmForgetPassword } from './dto/confirm-forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto copy';
+import { ConfirmResetPasswordDto } from './dto/confirm-reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -50,5 +51,10 @@ export class AuthController {
     @Post('reset-password')
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.authService.forgetPassword(resetPasswordDto);
+    }
+
+    @Post('confirm-reset-password')
+    async confirmResetPassword(@Body() confirmResetPassword: ConfirmResetPasswordDto) {
+        return this.authService.confirmForgetPassword(confirmResetPassword);
     }
 }
